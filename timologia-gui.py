@@ -14,7 +14,7 @@ db_cursor = db_connection.cursor()
 
 db_cursor.execute('''
 CREATE TABLE IF NOT EXISTS timologia (
-    id TEXT PRIMARY KEY,
+    Αριθμός_Τιμολογίου TEXT PRIMARY KEY,
     name TEXT,
     description TEXT,
     amount TEXT
@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         # Table widget to display entries
         self.table = QTableWidget()
         self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Amount"])
+        self.table.setHorizontalHeaderLabels(["Αριθμός_Τιμολογίου", "Name", "Description", "Amount"])
         self.layout.addWidget(self.table)
 
         # Toolbar setup
@@ -122,55 +122,55 @@ class MainWindow(QMainWindow):
  
     def action1_handler(self):
         # Add a new entry to the "timologia" database
-        fields = ["ID", "Name", "Description", "Amount"]
+        fields = ["Αριθμός_Τιμολογίου", "Name", "Description", "Amount"]
         dialog = DataEntryDialog("Add Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
             try:
                 db_cursor.execute(
-                    "INSERT INTO timologia (id, name, description, amount) VALUES (?, ?, ?, ?)",
-                    (data["ID"], data["Name"], data["Description"], data["Amount"])
+                    "INSERT INTO timologia (Αριθμός_Τιμολογίου, name, description, amount) VALUES (?, ?, ?, ?)",
+                    (data["Αριθμός_Τιμολογίου"], data["Name"], data["Description"], data["Amount"])
                 )
                 db_connection.commit()
                 self.label.setText(f"Added entry: {data}")
                 self.update_table()
             except sqlite3.IntegrityError:
-                self.label.setText("Error: ID already exists.")
+                self.label.setText("Error: Αριθμός_Τιμολογίου already exists.")
 
     def action2_handler(self):
          # Edit an existing entry by ID
-        fields = ["ID (to edit)", "Name", "Description", "Amount"]
+        fields = ["Αριθμός_Τιμολογίου (to edit)", "Name", "Description", "Amount"]
         dialog = DataEntryDialog("Edit Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
-            entry_id = data.pop("ID (to edit)")
-            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
+            entry_id = data.pop("Αριθμός_Τιμολογίου (to edit)")
+            db_cursor.execute("SELECT * FROM timologia WHERE Αριθμός_Τιμολογίου = ?", (entry_id,))
             if db_cursor.fetchone():
                 db_cursor.execute(
-                    "UPDATE timologia SET name = ?, description = ?, amount = ? WHERE id = ?",
+                    "UPDATE timologia SET name = ?, description = ?, amount = ? WHERE Αριθμός_Τιμολογίου = ?",
                     (data["Name"], data["Description"], data["Amount"], entry_id)
                 )
                 db_connection.commit()
-                self.label.setText(f"Edited entry with ID: {entry_id}")
+                self.label.setText(f"Edited entry with Αριθμός_Τιμολογίου: {entry_id}")
                 self.update_table()
             else:
-                self.label.setText(f"Entry ID {entry_id} not found.")
+                self.label.setText(f"Entry Αριθμός_Τιμολογίου {entry_id} not found.")
 
     def action3_handler(self):
         # Delete an entry by ID
-        fields = ["ID"]
+        fields = ["Αριθμός_Τιμολογίου"]
         dialog = DataEntryDialog("Delete Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
-            entry_id = data["ID"]
-            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
+            entry_id = data["Αριθμός_Τιμολογίου"]
+            db_cursor.execute("SELECT * FROM timologia WHERE Αριθμός_Τιμολογίου = ?", (entry_id,))
             if db_cursor.fetchone():
-                db_cursor.execute("DELETE FROM timologia WHERE id = ?", (entry_id,))
+                db_cursor.execute("DELETE FROM timologia WHERE Αριθμός_Τιμολογίου = ?", (entry_id,))
                 db_connection.commit()
-                self.label.setText(f"Deleted entry with ID: {entry_id}")
+                self.label.setText(f"Deleted entry with Αριθμός_Τιμολογίου: {entry_id}")
                 self.update_table()
             else:
-                self.label.setText(f"Entry ID {entry_id} not found.")
+                self.label.setText(f"Entry Αριθμός_Τιμολογίου {entry_id} not found.")
 
     def action4_handler(self):
         # Search for an entry by Name and display it in the table
@@ -205,7 +205,7 @@ class MainWindow(QMainWindow):
         rows = db_cursor.fetchall()
         if rows:
             with open("timologia_export.csv", "w") as file:
-                file.write("ID,Name,Description,Amount\n")
+                file.write("Αριθμός_Τιμολογίου,Name,Description,Amount\n")
                 for row in rows:
                     file.write(",".join(row) + "\n")
             self.label.setText("Exported database to 'timologia_export.csv'")
