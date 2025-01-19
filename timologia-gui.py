@@ -1,9 +1,26 @@
 import sys
-from pyqt5.qtwidgets import (
+import sqlite3
+
+from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QLabel, QToolBar, QAction,
-    QStatusBar, QLineEdit, QPushButton, QWidget, QFormLayout, QDialog, QDialogButtonBox
+    QStatusBar, QLineEdit, QPushButton, QWidget, QFormLayout, QDialog, 
+    QDialogButtonBox, QTableWidget, QTableWidgetItem
 )
 from PyQt5.QtCore import Qt
+
+# SQLite database setup
+db_connection = sqlite3.connect("timologia.db")
+db_cursor = db_connection.cursor()
+
+db_cursor.execute('''
+CREATE TABLE IF NOT EXISTS timologia (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    description TEXT,
+    amount TEXT
+)
+''')
+db_connection.commit()
 
 # Assuming "timologia" is a placeholder for the database structure
 timologia = {}
@@ -38,17 +55,27 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.setWindowTitle("Timologia Database App")
+        self.setWindowTitle("Timologia App")
+
+        # Set window size to 10 inches x 10 inches (converted to pixels at 96 DPI)
+        inch_to_pixels = 96
+        self.resize(4.5 * inch_to_pixels, 6 * inch_to_pixels)
 
         # Central widget and layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        self.layout = QVBoxLayout()
+        self.layout = QVBoxLayout()        
         central_widget.setLayout(self.layout)
 
         self.label = QLabel("Welcome to the Timologia Database App!")
         self.label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.label)
+
+        # Table widget to display entries
+        self.table = QTableWidget()
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Amount"])
+        self.layout.addWidget(self.table)
 
         # Toolbar setup
         toolbar = QToolBar("Main Toolbar")
@@ -80,27 +107,51 @@ class MainWindow(QMainWindow):
         toolbar.addAction(action6)
 
         self.setStatusBar(QStatusBar(self))
-
+    
+    # Adding fn to update the table for PyQT firmat        
+    def update_table(self):
+        # Update the table widget with current data
+         # Update the table widget with current data from the database
+        db_cursor.execute("SELECT * FROM timologia")
+        rows = db_cursor.fetchall()
+        self.table.setRowCount(len(rows))
+        for row_idx, row in enumerate(rows):
+            for col_idx, value in enumerate(row):
+                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(value)))
+ 
     def action1_handler(self):
         # Add a new entry to the "timologia" database
         fields = ["ID", "Name", "Description", "Amount"]
         dialog = DataEntryDialog("Add Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
-            # Simulating database insert
-            timologia[data["ID"]] = data
-            self.label.setText(f"Added entry: {data}")
+            try:
+                db_cursor.execute(
+                    "INSERT INTO timologia (id, name, description, amount) VALUES (?, ?, ?, ?)",
+                    (data["ID"], data["Name"], data["Description"], data["Amount"])
+                )
+                db_connection.commit()
+                self.label.setText(f"Added entry: {data}")
+                self.update_table()
+            except sqlite3.IntegrityError:
+                self.label.setText("Error: ID already exists.")
 
     def action2_handler(self):
-        # Edit an existing entry by ID
+         # Edit an existing entry by ID
         fields = ["ID (to edit)", "Name", "Description", "Amount"]
         dialog = DataEntryDialog("Edit Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
             entry_id = data.pop("ID (to edit)")
-            if entry_id in timologia:
-                timologia[entry_id].update(data)
+            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
+            if db_cursor.fetchone():
+                db_cursor.execute(
+                    "UPDATE timologia SET name = ?, description = ?, amount = ? WHERE id = ?",
+                    (data["Name"], data["Description"], data["Amount"], entry_id)
+                )
+                db_connection.commit()
                 self.label.setText(f"Edited entry with ID: {entry_id}")
+                self.update_table()
             else:
                 self.label.setText(f"Entry ID {entry_id} not found.")
 
@@ -111,9 +162,12 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             data = dialog.get_data()
             entry_id = data["ID"]
-            if entry_id in timologia:
-                del timologia[entry_id]
+            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
+            if db_cursor.fetchone():
+                db_cursor.execute("DELETE FROM timologia WHERE id = ?", (entry_id,))
+                db_connection.commit()
                 self.label.setText(f"Deleted entry with ID: {entry_id}")
+                self.update_table()
             else:
                 self.label.setText(f"Entry ID {entry_id} not found.")
 
@@ -124,17 +178,21 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             data = dialog.get_data()
             entry_id = data["ID"]
-            if entry_id in timologia:
-                entry = timologia[entry_id]
-                self.label.setText(f"Found entry: {entry}")
+            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
+            entry = db_cursor.fetchone()
+            if entry:
+                self.label.setText(f"Found entry: ID={entry[0]}, Name={entry[1]}, Description={entry[2]}, Amount={entry[3]}")
             else:
                 self.label.setText(f"Entry ID {entry_id} not found.")
 
     def action5_handler(self):
         # View all entries in the database
-        entries = "\n".join([f"ID: {k}, Data: {v}" for k, v in timologia.items()])
-        self.label.setText(f"All Entries:\n{entries}" if entries else "No entries found.")
+        #entries = "\n".join([f"ID: {k}, Data: {v}" for k, v in timologia.items()])
+        #self.label.setText(f"All Entries:\n{entries}" if entries else "No entries found.")
+        self.update_table()
+        self.label.setText("Displaying all entries")
 
+    
     def action6_handler(self):
         # Export database to CSV (simulation)
         if timologia:
