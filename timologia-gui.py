@@ -1,10 +1,11 @@
 import sys
 import sqlite3
+from datetime import datetime
 
 from  PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QLabel, QToolBar, QAction,
     QStatusBar, QLineEdit, QPushButton, QWidget, QFormLayout, QDialog, 
-    QDialogButtonBox, QTableWidget, QTableWidgetItem
+    QDialogButtonBox, QTableWidget, QTableWidgetItem, QMessageBox
 )
 from PyQt5.QtCore import Qt
 
@@ -12,15 +13,33 @@ from PyQt5.QtCore import Qt
 db_connection = sqlite3.connect("timologia.db")
 db_cursor = db_connection.cursor()
 
-db_cursor.execute('''
-CREATE TABLE IF NOT EXISTS timologia (
-    id TEXT PRIMARY KEY,
-    name TEXT,
-    description TEXT,
-    amount TEXT
-)
-''')
-db_connection.commit()
+# Check if the 'timologia' table needs to be migrated
+def ensure_table_schema():
+    db_cursor.execute("PRAGMA table_info(timologia)")
+    columns = [column[1] for column in db_cursor.fetchall()]
+    if "date" not in columns:
+        # If the 'date' column doesn't exist, migrate the table
+        db_cursor.execute('''
+        CREATE TABLE IF NOT EXISTS timologia_new (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            description TEXT,
+            amount TEXT,
+            date TEXT
+        )
+        ''')
+        # Copy data from the old table to the new table
+        db_cursor.execute('''
+        INSERT INTO timologia_new (id, name, description, amount)
+        SELECT id, name, description, amount FROM timologia
+        ''')
+        # Drop the old table and rename the new table
+        db_cursor.execute("DROP TABLE timologia")
+        db_cursor.execute("ALTER TABLE timologia_new RENAME TO timologia")
+        db_connection.commit()
+
+# Ensure the table schema is correct
+ensure_table_schema()
 
 # Assuming "timologia" is a placeholder for the database structure
 timologia = {}
@@ -32,19 +51,37 @@ class DataEntryDialog(QDialog):
         self.setWindowTitle(title)
         self.layout = QFormLayout()
         self.entries = {}
+        self.date_field = None  # To keep track of the date field for validation
+        
         for field in fields:
             entry = QLineEdit()
+            if field == "Date":
+                entry.setPlaceholderText("DD-MM-YY") # Add placeholder for date
+                self.date_field = entry
             self.layout.addRow(QLabel(field), entry)
             self.entries[field] = entry
 
         # Dialog buttons for OK/Cancel
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(self.accept)
+        buttons.accepted.connect(self.validate_and_accept)
         buttons.rejected.connect(self.reject)
 
         self.layout.addWidget(buttons)
         self.setLayout(self.layout)
+    
+    def validate_and_accept(self):
+        # Validate the date format if the Date field exists
+        if self.date_field:
+            date_text = self.date_field.text()
+            try:
+                # Validate the date format
+                datetime.strptime(date_text, "%d-%m-%y")
+            except ValueError:
+                QMessageBox.warning(self, "Invalid Date", "Please enter the date in DD-MM-YY format.")
+                return  # Do not close the dialog if the date is invalid
+        self.accept()
 
+   
     def get_data(self):
         # Return data from entries
         return {field: self.entries[field].text() for field in self.entries}
@@ -59,7 +96,7 @@ class MainWindow(QMainWindow):
 
         # Set window size to 10 inches x 10 inches (converted to pixels at 96 DPI)
         inch_to_pixels = 96
-        self.resize(4.5 * inch_to_pixels, 6 * inch_to_pixels)
+        self.resize(4 * inch_to_pixels, 6 * inch_to_pixels)
 
         # Central widget and layout
         central_widget = QWidget()
@@ -67,14 +104,14 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout()        
         central_widget.setLayout(self.layout)
 
-        self.label = QLabel("Welcome to the Timologia Database App!")
+        self.label = QLabel("Καλοσωρίσατε στη Βάση Δεδομένων Τιμολογίου!")
         self.label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.label)
 
         # Table widget to display entries
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Amount"])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["Αριθμός Τιμολογίου", "Ονοματεπώνυμο", "Περιγραφή", "Ποσό", "Ημερομηνία"])
         self.layout.addWidget(self.table)
 
         # Toolbar setup
@@ -109,6 +146,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(QStatusBar(self))
     
         self.update_table()
+        
     # Adding fn to update the table for PyQT firmat        
     def update_table(self):
         # Update the table widget with current data
@@ -122,14 +160,14 @@ class MainWindow(QMainWindow):
  
     def action1_handler(self):
         # Add a new entry to the "timologia" database
-        fields = ["ID", "Name", "Description", "Amount"]
+        fields = ["ID", "Name", "Description", "Amount", "Date"]
         dialog = DataEntryDialog("Add Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
             try:
                 db_cursor.execute(
-                    "INSERT INTO timologia (id, name, description, amount) VALUES (?, ?, ?, ?)",
-                    (data["ID"], data["Name"], data["Description"], data["Amount"])
+                    "INSERT INTO timologia (id, name, description, amount, date) VALUES (?, ?, ?, ?, ?)",
+                    (data["ID"], data["Name"], data["Description"], data["Amount"], data["Date"])
                 )
                 db_connection.commit()
                 self.label.setText(f"Added entry: {data}")
@@ -139,7 +177,7 @@ class MainWindow(QMainWindow):
 
     def action2_handler(self):
          # Edit an existing entry by ID
-        fields = ["ID (to edit)", "Name", "Description", "Amount"]
+        fields = ["ID (to edit)", "Name", "Description", "Amount", "Date"]
         dialog = DataEntryDialog("Edit Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
@@ -147,8 +185,8 @@ class MainWindow(QMainWindow):
             db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
             if db_cursor.fetchone():
                 db_cursor.execute(
-                    "UPDATE timologia SET name = ?, description = ?, amount = ? WHERE id = ?",
-                    (data["Name"], data["Description"], data["Amount"], entry_id)
+                    "UPDATE timologia SET name = ?, description = ?, amount = ?, date = ? WHERE id = ?",
+                    (data["Name"], data["Description"], data["Amount"], data["Date"], entry_id)
                 )
                 db_connection.commit()
                 self.label.setText(f"Edited entry with ID: {entry_id}")
