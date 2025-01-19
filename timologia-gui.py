@@ -108,6 +108,7 @@ class MainWindow(QMainWindow):
 
         self.setStatusBar(QStatusBar(self))
     
+        self.update_table()
     # Adding fn to update the table for PyQT firmat        
     def update_table(self):
         # Update the table widget with current data
@@ -172,18 +173,23 @@ class MainWindow(QMainWindow):
                 self.label.setText(f"Entry ID {entry_id} not found.")
 
     def action4_handler(self):
-        # Search for an entry by ID and display it
-        fields = ["ID"]
+        # Search for an entry by Name and display it in the table
+        fields = ["Name"]
         dialog = DataEntryDialog("Search Entry", fields, self)
         if dialog.exec():
             data = dialog.get_data()
-            entry_id = data["ID"]
-            db_cursor.execute("SELECT * FROM timologia WHERE id = ?", (entry_id,))
-            entry = db_cursor.fetchone()
-            if entry:
-                self.label.setText(f"Found entry: ID={entry[0]}, Name={entry[1]}, Description={entry[2]}, Amount={entry[3]}")
+            name = data["Name"]
+            db_cursor.execute("SELECT * FROM timologia WHERE name LIKE ?", (f"%{name}%",))
+            rows = db_cursor.fetchall()
+            if rows:
+                self.table.setRowCount(len(rows))
+                for row_idx, row in enumerate(rows):
+                    for col_idx, value in enumerate(row):
+                        self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(value)))
+                self.label.setText(f"Found {len(rows)} entries matching name '{name}'")
             else:
-                self.label.setText(f"Entry ID {entry_id} not found.")
+                self.label.setText(f"No entries found for name '{name}'")
+
 
     def action5_handler(self):
         # View all entries in the database
@@ -194,12 +200,14 @@ class MainWindow(QMainWindow):
 
     
     def action6_handler(self):
-        # Export database to CSV (simulation)
-        if timologia:
+        # Export database to CSV
+        db_cursor.execute("SELECT * FROM timologia")
+        rows = db_cursor.fetchall()
+        if rows:
             with open("timologia_export.csv", "w") as file:
                 file.write("ID,Name,Description,Amount\n")
-                for entry in timologia.values():
-                    file.write(f"{entry['ID']},{entry['Name']},{entry['Description']},{entry['Amount']}\n")
+                for row in rows:
+                    file.write(",".join(row) + "\n")
             self.label.setText("Exported database to 'timologia_export.csv'")
         else:
             self.label.setText("No entries to export.")
