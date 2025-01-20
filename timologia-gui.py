@@ -242,7 +242,7 @@ class MainWindow(QMainWindow):
         db_cursor.execute("SELECT * FROM timologia")
         rows = db_cursor.fetchall()
         if rows:
-            with open("timologia_export.csv", "w") as file:
+            with open("timologia_export.csv", "w", encoding="utf-8") as file:
                 file.write("ID,Name,Description,Amount\n")
                 for row in rows:
                     file.write(",".join(row) + "\n")
