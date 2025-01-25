@@ -1,2 +1,4 @@
 python-dateutil
 PyQt5
+keras-ocr 
+opencv-python
