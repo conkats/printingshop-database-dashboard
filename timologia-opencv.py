@@ -2,6 +2,7 @@ import sqlite3
 import csv
 import keras_ocr #for opencv
 import re # for regex
+import os
 
 usage_message = '''
 # Καλοσωρήσατε στο σύστημα τιμολογίων! 
@@ -99,6 +100,7 @@ def savedb_csv(cursor, db):
 
 # Extract text from image using keras-ocr
 def extract_text_from_image(image_path):
+    image_path='scan.png'
     pipeline = keras_ocr.pipeline.Pipeline()
     image = keras_ocr.tools.read(image_path)
     predictions = pipeline.recognize([image])[0]
@@ -108,10 +110,10 @@ def extract_text_from_image(image_path):
 
 # Parse the extracted text into timologia fields
 def parse_timologia_data(extracted_text):
-    id_match = re.search(r"ID[:\s]*(\d+)", extracted_text, re.IGNORECASE)
-    title_match = re.search(r"Περιγραφή[:\s]*(.+?)(?:Πελάτης|Qty|€|$)", extracted_text, re.IGNORECASE)
-    author_match = re.search(r"Πελάτης[:\s]*(.+?)(?:Qty|€|$)", extracted_text, re.IGNORECASE)
-    qty_match = re.search(r"Ποσό[:\s]*(\d+)", extracted_text, re.IGNORECASE)
+    id_match = re.search(r"INVOICE[:\s]*(\d+)", extracted_text, re.IGNORECASE)
+    title_match = re.search(r"ΟΝΟΜΑ[:\s]*(.+?)(?:Πελάτης|Qty|€|$)", extracted_text, re.IGNORECASE)
+    author_match = re.search(r"ΠΕΡΙΓΡΑΦΗ[:\s]*(.+?)(?:Qty|€|$)", extracted_text, re.IGNORECASE)
+    qty_match = re.search(r"€[:\s]*(\d+)", extracted_text, re.IGNORECASE)
 
     timologia_data = {
         "ID": int(id_match.group(1)) if id_match else None,
