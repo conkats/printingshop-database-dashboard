@@ -10,8 +10,12 @@ from  PyQt5.QtWidgets import (
     QHBoxLayout, QInputDialog
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QCompleter
+
 
 # SQLite database setup
+#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+#db_path = os.path.join(BASE_DIR, "timologia.db")
 db_connection = sqlite3.connect("timologia.db")
 db_cursor = db_connection.cursor()
 
@@ -40,6 +44,16 @@ def ensure_table_schema():
         db_cursor.execute("ALTER TABLE timologia_new RENAME TO timologia")
         db_connection.commit()
 
+
+### Autocomplete function
+#  to get existing all existing names from the database
+#  for the QCompleter and fetch all existing names from database.
+def get_existing_names():
+    db_cursor.execute("SELECT DISTINCT name FROM timologia")
+    results = db_cursor.fetchall()
+    return [row[0] for row in results if row[0]]  # Avoid None values
+
+
 # Ensure the table schema is correct
 ensure_table_schema()
 
@@ -58,7 +72,15 @@ class DataEntryDialog(QDialog):
         
         # Add fields to the layout
         for field in fields:
+            ### Autocomplete:
+            #  for Name field
             entry = QLineEdit()
+            if field == "Name":
+               self.setup_name_autocomplete(entry)
+            ### Autocomplete ends
+
+            # Add the layout to the main layout
+            #entry = QLineEdit()
             if field == "Date":
                 entry.setPlaceholderText("DD-MM-YY") # Add placeholder for date
                 self.date_field = entry
@@ -123,6 +145,14 @@ class DataEntryDialog(QDialog):
         print(f"Descriptions in get_data: {data['Descriptions']}")  # Log the descriptions here
         return data
     
+    ### Autocomplete:
+    #  Function to get existing names from the database for autocomplete
+    def setup_name_autocomplete(self, line_edit):
+        names = get_existing_names()
+        completer = QCompleter(names)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        line_edit.setCompleter(completer)
+        completer.activated.connect(lambda text: line_edit.setText(text))
 
 class MainWindow(QMainWindow):
 
@@ -131,9 +161,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Timologia App")
 
-        # Set window size to 10 inches x 10 inches (converted to pixels at 96 DPI)
+        # Set window size to 96 inches x 96*6 inches (converted to pixels at 96 DPI)
         inch_to_pixels = 96
-        self.resize(4 * inch_to_pixels, 6 * inch_to_pixels)
+        self.resize(8 * inch_to_pixels, 6 * inch_to_pixels)
 
         # Central widget and layout
         central_widget = QWidget()
@@ -244,23 +274,6 @@ class MainWindow(QMainWindow):
         
         if dialog.exec():
             data = dialog.get_data()
-
-
-            # Try autocompleting based on Name
-            existing_entry = self.autocomplete_name(data["Name"])
-            if existing_entry:
-               # Ask the user if they want to autocomplete
-               reply = QMessageBox.question(self, "Εύρεση Υπάρχοντος Ονόματος",
-                                          f"Βρέθηκε ήδη πελάτης με το όνομα '{data['Name']}'. Θέλεις να συμπληρωθούν αυτόματα τα στοιχεία;",
-                                          QMessageBox.Yes | QMessageBox.No)
-               if reply == QMessageBox.Yes:
-                   # Update the data with the autocompleted fields
-                   data.update({
-                       "Amount": existing_entry["Amount"],
-                       "Date": existing_entry["Date"]
-                   })
-                   data["Descriptions"] = existing_entry["Descriptions"]
-  
 
             try:
                 # Convert the list of descriptions to JSON string format
@@ -404,24 +417,6 @@ class MainWindow(QMainWindow):
         else:
             self.label.setText("No entries to export.")
     
-    # Method to handle autocomplete functionality
-    def autocomplete_name(self, name):
-        db_cursor.execute("SELECT name, description, amount, date FROM timologia WHERE name = ?", (name,))
-        result = db_cursor.fetchone()
-        if result:
-            # Return the matching entry details
-            name, description_json, amount, date = result
-            try:
-                descriptions = json.loads(description_json) if description_json else []
-            except json.JSONDecodeError:
-                descriptions = []
-            return {
-                "Name": name,
-                "Descriptions": descriptions,
-                "Amount": amount,
-                "Date": date
-            }
-        return None  # No matching name found
 
 # Close the database connection when the application exits
 if __name__ == '__main__':
