@@ -122,6 +122,8 @@ class DataEntryDialog(QDialog):
         data["Descriptions"] = self.descriptions  # Add Descriptions as a key to the returned data dict.
         print(f"Descriptions in get_data: {data['Descriptions']}")  # Log the descriptions here
         return data
+    
+
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -239,8 +241,27 @@ class MainWindow(QMainWindow):
         # Add a new entry to the "timologia" database
         fields = ["ID", "Name", "Amount", "Date"]
         dialog = DataEntryDialog("Πρόσθεση Τιμολογίου", fields, self)
+        
         if dialog.exec():
             data = dialog.get_data()
+
+
+            # Try autocompleting based on Name
+            existing_entry = self.autocomplete_name(data["Name"])
+            if existing_entry:
+               # Ask the user if they want to autocomplete
+               reply = QMessageBox.question(self, "Εύρεση Υπάρχοντος Ονόματος",
+                                          f"Βρέθηκε ήδη πελάτης με το όνομα '{data['Name']}'. Θέλεις να συμπληρωθούν αυτόματα τα στοιχεία;",
+                                          QMessageBox.Yes | QMessageBox.No)
+               if reply == QMessageBox.Yes:
+                   # Update the data with the autocompleted fields
+                   data.update({
+                       "Amount": existing_entry["Amount"],
+                       "Date": existing_entry["Date"]
+                   })
+                   data["Descriptions"] = existing_entry["Descriptions"]
+  
+
             try:
                 # Convert the list of descriptions to JSON string format
                 # Check if descriptions in the key exist, retrieve them
@@ -382,7 +403,27 @@ class MainWindow(QMainWindow):
             self.label.setText("Exported database to 'timologia_export.csv'")
         else:
             self.label.setText("No entries to export.")
+    
+    # Method to handle autocomplete functionality
+    def autocomplete_name(self, name):
+        db_cursor.execute("SELECT name, description, amount, date FROM timologia WHERE name = ?", (name,))
+        result = db_cursor.fetchone()
+        if result:
+            # Return the matching entry details
+            name, description_json, amount, date = result
+            try:
+                descriptions = json.loads(description_json) if description_json else []
+            except json.JSONDecodeError:
+                descriptions = []
+            return {
+                "Name": name,
+                "Descriptions": descriptions,
+                "Amount": amount,
+                "Date": date
+            }
+        return None  # No matching name found
 
+# Close the database connection when the application exits
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
