@@ -60,8 +60,32 @@ ensure_table_schema()
 # Assuming "timologia" is a placeholder for the database structure
 timologia = {}
 
+# Class for using QLineEdit for autocompleting descriptions
+class DescriptionInputDialog(QDialog):
+    def __init__(self, descriptions, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Add Description")
+        layout = QVBoxLayout(self)
+
+        self.line_edit = QLineEdit(self)
+        completer = QCompleter(descriptions)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.line_edit.setCompleter(completer)
+
+        layout.addWidget(QLabel("Enter description:"))
+        layout.addWidget(self.line_edit)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def get_description(self):
+        return self.line_edit.text()
+
 # Define a class for a separate dialog to handle data inputs
 class DataEntryDialog(QDialog):
+    # Create the form fields
     def __init__(self, title, fields, parent=None):
         super().__init__(parent)
         self.setWindowTitle(title)
@@ -72,21 +96,20 @@ class DataEntryDialog(QDialog):
         
         # Add fields to the layout
         for field in fields:
-            ### Autocomplete:
-            #  for Name field
             entry = QLineEdit()
-            if field == "Name":
-               self.setup_name_autocomplete(entry)
-            ### Autocomplete ends
-
             # Add the layout to the main layout
-            #entry = QLineEdit()
             if field == "Date":
                 entry.setPlaceholderText("DD-MM-YY") # Add placeholder for date
                 self.date_field = entry
             self.layout.addRow(QLabel(field), entry)
             self.entries[field] = entry
             
+            ### Autocomplete:<-----
+            #  for Name adn description which is serialised JSON field
+            if field == "Name":
+               self.setup_name_autocomplete(entry)
+            ### Autocomplete ends
+
         # Add a button to add descriptions
         self.description_button = QPushButton("Add Description")
         self.description_button.clicked.connect(self.add_description)
@@ -108,11 +131,24 @@ class DataEntryDialog(QDialog):
     # so to be added to the data dictionary when the dialog is accepted.
     # After adding a description, the update_description_list() method updates the UI to display all added descriptions in the dialog.
     def add_description(self):
-        description, ok = QInputDialog.getText(self, "Add Description", "Enter description:")
-        if ok and description:
-            self.descriptions.append(description)
-            self.update_description_list()
-    
+        #    description, ok = QInputDialog.getText(self, "Add Description", "Enter description:")
+        #    if ok and description:
+        #        # Append the description to the list and update the UI
+        #        self.descriptions.append(description)
+        #        self.update_description_list()
+        # fetch existing descriptions
+        global db_cursor
+        db_cursor.execute("SELECT DISTINCT description FROM timologia WHERE description IS NOT NULL")
+        descriptions = [row[0] for row in db_cursor.fetchall()]
+
+        # use our custom dialog
+        dialog = DescriptionInputDialog(descriptions, self)
+        if dialog.exec_() == QDialog.Accepted:
+            description = dialog.get_description()
+            if description:
+                self.descriptions.append(description)
+                self.update_description_list()
+
     def update_description_list(self):
         # Clear previous descriptions in the layout
         for i in reversed(range(self.descriptions_layout.count())):
@@ -145,8 +181,8 @@ class DataEntryDialog(QDialog):
         print(f"Descriptions in get_data: {data['Descriptions']}")  # Log the descriptions here
         return data
     
-    ### Autocomplete:
-    #  Function to get existing names from the database for autocomplete
+    # Autocomplete method for name field:
+    # Function to get existing names from the database for autocomplete
     def setup_name_autocomplete(self, line_edit):
         names = get_existing_names()
         completer = QCompleter(names)
@@ -154,6 +190,11 @@ class DataEntryDialog(QDialog):
         line_edit.setCompleter(completer)
         completer.activated.connect(lambda text: line_edit.setText(text))
 
+
+# Main Window class that contains the actions and the uses the widgets of PyQt5
+#  to create the GUI for the application.
+#  The class inherits from QMainWindow and sets up the layout, toolbar, and actions.
+#  The class also handles the database operations and updates the table with the data.
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -216,7 +257,7 @@ class MainWindow(QMainWindow):
         # Call the update_table method to display the initial data in the table
         self.update_table()
         
-    # Adding fn to update the table for PyQT format        
+    # Adding function to update the table for PyQT format        
     def update_table(self):
         # Update the table widget with current data
          # Update the table widget with current data from the database
@@ -269,7 +310,7 @@ class MainWindow(QMainWindow):
 
     def action1_handler(self):
         # Add a new entry to the "timologia" database
-        fields = ["ID", "Name", "Amount", "Date"]
+        fields = ["ID", "Name",  "Amount", "Date"]
         dialog = DataEntryDialog("Πρόσθεση Τιμολογίου", fields, self)
         
         if dialog.exec():

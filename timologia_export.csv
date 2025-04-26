@@ -1,8 +1,12 @@
 ID,Name,Description,Amount
-2,Maria,PhD thesis,150.00
-1,Ck,PhD,50
-10,Test,Test,100
-100,Epi,Bachelor,25
-7,DEMOS,APODI3I,70
-1542,KEMANES,APODIXI-30,150
-345,KEMANES,TIMO,500
+2,Maria,["PhD Thesis"],100,10-12-25
+100,Epi,["Bachelor", "APODI3I"],20,20-12-24
+7,DEMOS,APODI3I,70,
+345,KEMANES,TIMO,500,
+123,Maria,laptop,1000,
+234,Μaria,key,12,
+1543,KEMANES,[],150,
+02,DEMOS,["Test"],100,10-12-25
+30,Maria,["test1", "test2"],20,02-03-25
+130,Con,["PhD"],30,02-02-24
+01,KEMANES,["APODI3I", "PhD"],200,20-12-24
