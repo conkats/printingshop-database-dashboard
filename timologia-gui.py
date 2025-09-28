@@ -2,12 +2,14 @@ import sys
 import sqlite3
 from datetime import datetime
 import json  
+import csv
+import os
 
 from  PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QLabel, QToolBar, QAction,
     QStatusBar, QLineEdit, QPushButton, QWidget, QFormLayout, QDialog, 
     QDialogButtonBox, QTableWidget, QTableWidgetItem, QMessageBox,
-    QHBoxLayout, QInputDialog
+    QHBoxLayout, QInputDialog, QFileDialog
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QCompleter
@@ -19,7 +21,7 @@ from PyQt5.QtWidgets import QCompleter
 db_connection = sqlite3.connect("timologia.db")
 db_cursor = db_connection.cursor()
 
-# Check if the 'timologia' table needs to be migrated
+# Check if the 'timologia' table needs to be migrated and has the schema
 def ensure_table_schema():
     db_cursor.execute("PRAGMA table_info(timologia)")
     columns = [column[1] for column in db_cursor.fetchall()]
@@ -123,7 +125,6 @@ class DataEntryDialog(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.validate_and_accept)
         buttons.rejected.connect(self.reject)
-
         self.layout.addWidget(buttons)
         self.setLayout(self.layout)
         
@@ -196,15 +197,14 @@ class DataEntryDialog(QDialog):
 #  The class inherits from QMainWindow and sets up the layout, toolbar, and actions.
 #  The class also handles the database operations and updates the table with the data.
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle("Timologia App")
 
-        # Set window size to 96 inches x 96*6 inches (converted to pixels at 96 DPI)
+        # Set window size to 96 inches x 96*8 inches (converted to pixels at 96 DPI)
         inch_to_pixels = 96
-        self.resize(8 * inch_to_pixels, 6 * inch_to_pixels)
+        self.resize(12 * inch_to_pixels, 8 * inch_to_pixels)
 
         # Central widget and layout
         central_widget = QWidget()
@@ -248,12 +248,15 @@ class MainWindow(QMainWindow):
         action5.triggered.connect(self.action5_handler)
         toolbar.addAction(action5)
 
-        action6 = QAction("Αποθήκευση σε CSV ", self)
+        action6 = QAction("Αποθήκευση σε .csv ", self)
         action6.triggered.connect(self.action6_handler)
         toolbar.addAction(action6)
 
+        action7 = QAction("Ανέβασε το .csv", self)
+        action7.triggered.connect(self.action7_handler)
+        toolbar.addAction(action7)
+
         self.setStatusBar(QStatusBar(self))
-        
         # Call the update_table method to display the initial data in the table
         self.update_table()
         
@@ -457,7 +460,118 @@ class MainWindow(QMainWindow):
             self.label.setText("Exported database to 'timologia_export.csv'")
         else:
             self.label.setText("No entries to export.")
+
+    def action7_handler(self):
+        # Choose a CSV file, then replace the timologia table
+        # Let user pick a CSV file
+        path, _ = QFileDialog.getOpenFileName(self, "Open CSV to replace database", "", "CSV files (*.csv);;All files (*)")
+        if not path:
+            return
+        # Confirm     destructive action
+        reply = QMessageBox.question(
+            self,
+            "Replace database?",
+            "This will replace the contents of the 'timologia' table with the selected CSV. Continue?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply != QMessageBox.Yes:
+            return
+        try:    
+            self.load_csv_replace_db(path)
+            self.label.setText(f"Loaded and replaced DB from: {os.path.basename(path)}")
+            self.update_table()
+        except Exception as e:
+            QMessageBox.critical(self, "CSV Load Error", f"Failed to load CSV: {e}")
     
+    def load_csv_replace_db(self, csv_path):
+        # Read CSV file and replace contents of the timologia table.
+        # Expected columns (case-insensitive): ID, Name, Description, Amount, Date
+        # Description may contain multiple items separated by '|' or newline; store as JSON list.
+        #
+        global db_connection, db_cursor
+
+        # read csv with python's csv so we don't depend on pandas here
+        with open(csv_path, newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+        if not rows:
+            raise ValueError("CSV file is empty")
+
+        header = [h.strip() for h in rows[0]]
+        # Map header names to lower-case keys
+        header_lower = [h.lower() for h in header]
+
+        # Expected column names (flexible)
+        def find_col(*names):
+            for n in names:
+                if n in header_lower:
+                    return header_lower.index(n)
+            return None
+
+        id_idx = find_col('id', 'issue number', 'issue_number', 'issue-number')
+        name_idx = find_col('name')
+        desc_idx = find_col('description', 'descrip', 'details')
+        amount_idx = find_col('amount', 'qty', 'euro', 'price')
+        date_idx = find_col('date')
+
+        if id_idx is None or name_idx is None:
+            raise ValueError("CSV must contain at least 'ID' and 'Name' columns")
+
+        data_rows = rows[1:]
+
+        # Recreate table to ensure schema matches and clear old data
+        db_cursor.execute("""CREATE TABLE IF NOT EXISTS timologia (
+                                id TEXT PRIMARY KEY,
+                                name TEXT,
+                                description TEXT,
+                                amount TEXT,
+                                date TEXT
+                             )""")
+        db_connection.commit()
+
+        # Clear existing data
+        db_cursor.execute("DELETE FROM timologia")
+        db_connection.commit()
+
+        insert_stmt = "INSERT INTO timologia (id, name, description, amount, date) VALUES (?, ?, ?, ?, ?)"
+        to_insert = []
+
+        for r in data_rows:
+            # be robust to short rows
+            # pad row to header length
+            if len(r) < len(header):
+                r = r + [''] * (len(header) - len(r))
+
+            _id = r[id_idx].strip() if id_idx is not None else ""
+            _name = r[name_idx].strip() if name_idx is not None else ""
+            _desc_raw = r[desc_idx].strip() if desc_idx is not None else ""
+            _amount = r[amount_idx].strip() if amount_idx is not None else ""
+            _date = r[date_idx].strip() if date_idx is not None else ""
+
+            # normalize description into a JSON list
+            # handle common separators: pipe '|' or newline; if none, single item list
+            if _desc_raw == "":
+                desc_list = []
+            elif '|' in _desc_raw:
+                desc_list = [s.strip() for s in _desc_raw.split('|') if s.strip()]
+            elif '\n' in _desc_raw:
+                desc_list = [s.strip() for s in _desc_raw.splitlines() if s.strip()]
+            else:
+                # also try comma separation if it looks like multiple
+                if ',' in _desc_raw and len(_desc_raw.split(',')) > 1:
+                    desc_list = [s.strip() for s in _desc_raw.split(',') if s.strip()]
+                else:
+                    desc_list = [_desc_raw]
+
+            desc_json = json.dumps(desc_list, ensure_ascii=False)
+
+            # Build tuple for insertion; allow empty strings for missing columns
+            to_insert.append((_id, _name, desc_json, _amount, _date))
+
+        # Bulk insert
+        db_cursor.executemany(insert_stmt, to_insert)
+        db_connection.commit()
 
 # Close the database connection when the application exits
 if __name__ == '__main__':
