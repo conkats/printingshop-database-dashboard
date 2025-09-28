@@ -55,10 +55,15 @@ Link to JSON summary
 Column	    | Type
 ------------------------------
 id	        | TEXT PRIMARY KEY
+------------------------------
 name	    | TEXT
+------------------------------
 description	| TEXT (JSON array)
+------------------------------
 amount	    | TEXT
+------------------------------
 date	    | TEXT (DD-MM-YY)
+------------------------------
 
 #### Notes
 
@@ -101,5 +106,3 @@ pyinstaller --onefile --windowed timologia-gui.py
 Then in dist/timologia.exe
 
 Remember that the timologia.db should be present in the directory.
-
-[text](vscode-local:/c%3A/Users/conno/Desktop/timologia_db-main/timologia_db-main-v2/timologia.db)
