@@ -52,18 +52,14 @@ Link to JSON summary
 - SQLite database file: timologia.db (created automatically if not present).
 - Table schema:
 
-Column	    | Type
-------------------------------
-id	        | TEXT PRIMARY KEY
-------------------------------
-name	    | TEXT
-------------------------------
-description	| TEXT (JSON array)
-------------------------------
-amount	    | TEXT
-------------------------------
-date	    | TEXT (DD-MM-YY)
-------------------------------
+
+| Column      | Type              |
+| ----------- | ----------------- |
+| id          | TEXT PRIMARY KEY  |
+| name        | TEXT              |
+| description | TEXT (JSON array) |
+| amount      | TEXT              |
+| date        | TEXT (DD-MM-YY)   |
 
 #### Notes
 
@@ -101,8 +97,27 @@ Caution on Pyqt5 lib depends on OS-Mac/Windows/Linux
 
 Packaged the programme into a single .exe for windows, use anaconda .env or python .env in cmd and execute:
 
-pyinstaller --onefile --windowed timologia-gui.py
+`pyinstaller --onefile --windowed timologia-gui.py`
 
-Then in dist/timologia.exe
+PyInstaller auto-generate a spec file, bundle verything in one single .exe 
+and include additional files e.g. DB, CSV:
+
+`pyinstaller --name TimologiaApp --onefile --windowed main.py --add-data "timologia.db;."`
+
+Note that ;. separates source and destination on Windows
+
+Include dashboard_api.py in the PyInstaller bundle:
+
+`pyinstaller --onefile --windowed main.py --add-data "dashboard_api.py;."`
+
+`pyinstaller --name TimologiaApp --onefile --windowed main.py --add-data "dashboard_api.py;." --add-data "timologia.db;."`
+
+When build,
+dist/
+└── TimologiaApp.exe
+
+- Run TimologiaApp.exe → GUI starts
+
+- Click Start Dashboard → FastAPI dashboard runs at http://127.0.0.1:8000/dashboard
 
 Remember that the timologia.db should be present in the directory.

@@ -106,7 +106,13 @@ new Chart(document.getElementById('bar').getContext('2d'), {{type:'bar', data}})
     return HTMLResponse(content=html)
 
 
+# to run manually: python -m uvicorn dashboard_api:app --host 127.0.0.1 --port 8000
+#if __name__ == "__main__":
+#    import uvicorn
+#    uvicorn.run("dashboard_api:app", host="127.0.0.1", port=8000)
+# Modified for executables
 if __name__ == "__main__":
-    # to run manually: python -m uvicorn dashboard_api:app --host 127.0.0.1 --port 8000
     import uvicorn
-    uvicorn.run("dashboard_api:app", host="127.0.0.1", port=8000)
+    import sys
+    port = 8000
+    uvicorn.run("dashboard_api:app", host="127.0.0.1", port=port, reload=False)

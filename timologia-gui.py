@@ -594,7 +594,12 @@ class MainWindow(QMainWindow):
         """
         base_url = "http://127.0.0.1:8000"
         dashboard_path = "/dashboard"  # endpoint path (root '/' also works)
-    
+        
+        #Run the FastAPI dashboard in a separate process
+        #dashboard_path = os.path.join(os.path.dirname(sys.executable), "dashboard_api.py")
+        #subprocess.Popen([sys.executable, dashboard_path])
+        #self.label.setText("Dashboard started at http://127.0.0.1:8000/dashboard")
+        
         # Helper to check if server responds
         def server_up(url, timeout=1.0):
             try:
