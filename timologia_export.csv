@@ -1,4 +1,4 @@
-ID,Name,Description,Amount
+ID,Name,Description,Amount,Date
 INV-001,Grace Lee,["Business cards printing", "Flyer design", "Brochure folding"],400.38,19-06-22
 INV-002,Eve Adams,["Advertising flyers"],184.97,14-03-22
 INV-003,Charlie Davis,["Invoice book printing"],253.37,14-02-22

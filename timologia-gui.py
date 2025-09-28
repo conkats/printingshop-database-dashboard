@@ -4,6 +4,12 @@ from datetime import datetime
 import json  
 import csv
 import os
+import subprocess
+import time
+import webbrowser
+from urllib.request import urlopen
+from urllib.error import URLError
+
 
 from  PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QLabel, QToolBar, QAction,
@@ -256,6 +262,12 @@ class MainWindow(QMainWindow):
         action7.triggered.connect(self.action7_handler)
         toolbar.addAction(action7)
 
+        # Talk to FastAPI
+        action8 = QAction("Γραφικές", self)
+        action8.triggered.connect(self.action8_handler)
+        toolbar.addAction(action8)
+
+
         self.setStatusBar(QStatusBar(self))
         # Call the update_table method to display the initial data in the table
         self.update_table()
@@ -452,7 +464,7 @@ class MainWindow(QMainWindow):
         rows = db_cursor.fetchall()
         if rows:
             with open("timologia_export.csv", "w", encoding="utf-8") as file:
-                file.write("ID,Name,Description,Amount\n")
+                file.write("ID,Name,Description,Amount,Date\n")
                 for row in rows:
                     # Replace None values with empty strings to prevent TypeError
                     row = [str(item) if item is not None else "" for item in row]
@@ -572,6 +584,66 @@ class MainWindow(QMainWindow):
         # Bulk insert
         db_cursor.executemany(insert_stmt, to_insert)
         db_connection.commit()
+
+    # FastAPI and dashboard handling
+    # This function tries to start the FastAPI server with uvicorn if not already running,
+    def action8_handler(self):
+        """
+        Start the simplified FastAPI dashboard (dashboard_api.py) with uvicorn if needed,
+        then open the dashboard in the default browser.
+        """
+        base_url = "http://127.0.0.1:8000"
+        dashboard_path = "/dashboard"  # endpoint path (root '/' also works)
+    
+        # Helper to check if server responds
+        def server_up(url, timeout=1.0):
+            try:
+                with urlopen(url, timeout=timeout) as r:
+                    return r.status == 200 or r.status == 404 or r.status == 302
+            except URLError:
+                return False
+            except Exception:
+                return False
+    
+        # If server is already running, just open it
+        if server_up(base_url):
+            webbrowser.open(base_url + dashboard_path)
+            QMessageBox.information(self, "Dashboard", f"Opened dashboard at {base_url}{dashboard_path}")
+            return
+    
+        # Not running — try to start uvicorn serving dashboard_api:app
+        # Use the current Python executable to run uvicorn as a module so it works cross-platform
+        cmd = [sys.executable, "-m", "uvicorn", "dashboard_api:app", "--host", "127.0.0.1", "--port", "8000"]
+    
+        try:
+            # Start uvicorn in a new process session so it doesn't die with the GUI
+            proc = subprocess.Popen(cmd,
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                    start_new_session=True)
+        except FileNotFoundError as e:
+            QMessageBox.critical(self, "Start error", "Failed to start uvicorn. Is 'uvicorn' installed?\n\nInstall with: pip install uvicorn")
+            return
+        except Exception as e:
+            QMessageBox.critical(self, "Start error", f"Failed to start dashboard server: {e}")
+            return
+    
+        # Wait up to N seconds for the server to come up
+        timeout_secs = 12
+        poll_interval = 0.5
+        waited = 0.0
+        self.label.setText("Starting dashboard server...")
+        while waited < timeout_secs:
+            if server_up(base_url):
+                webbrowser.open(base_url + dashboard_path)
+                QMessageBox.information(self, "Dashboard", f"Dashboard started and opened at {base_url}{dashboard_path}")
+                return
+            time.sleep(poll_interval)
+            waited += poll_interval
+    
+        # If we reach here server didn't respond in time
+        QMessageBox.warning(self, "Timeout", f"Server did not respond within {timeout_secs} seconds.\nTry starting dashboard_api.py manually:\n\npython -m uvicorn dashboard_api:app --host 127.0.0.1 --port 8000")
+
 
 # Close the database connection when the application exits
 if __name__ == '__main__':
