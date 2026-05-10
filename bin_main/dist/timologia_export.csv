@@ -1,0 +1,151 @@
+ID,Name,Description,Amount,Date
+INV-001,Grace Lee,["[\"Business cards printing\""],"Flyer design","Brochure folding"]
+INV-002,Eve Adams,["[\"Advertising flyers\"]"],184.97,14-03-22
+INV-003,Charlie Davis,["[\"Invoice book printing\"]"],253.37,14-02-22
+INV-004,Frank White,["[\"Event posters\"]"],311.31,28-01-24
+INV-005,Bob Brown,["[\"Shop branding\"]"],431.49,31-03-23
+INV-006,John Doe,["[\"Custom stickers\"]"],448.04,18-10-22
+INV-007,Grace Lee,["[\"Custom stickers\"]"],293.67,21-08-23
+INV-008,Bob Brown,["[\"Business cards printing\""],"Flyer design","Brochure folding"]
+INV-009,Alice Johnson,["[\"Large format banner printing\""],"Event posters"],75.95
+INV-010,Jane Smith,["[\"Receipt book printing\"]"],199.15,15-01-24
+INV-011,Alice Johnson,["[\"Business cards printing\""],"Flyer design","Brochure folding"]
+INV-012,Grace Lee,["[\"Receipt book printing\"]"],390.16,31-10-23
+INV-013,Bob Brown,["[\"Poster printing\""],"Banner setup"],275.1
+INV-014,Grace Lee,["[\"Banner setup\"]"],406.32,24-02-23
+INV-015,Alice Johnson,["[\"Large format banner printing\""],"Event posters"],244.83
+INV-016,Grace Lee,["[\"Shop branding\""],"Logo design","Advertising flyers"]
+INV-017,Bob Brown,["[\"Brochure folding\"]"],356.28,10-08-22
+INV-018,John Doe,["[\"Invoice book printing\"]"],413.7,21-01-24
+INV-019,Eve Adams,["[\"Leaflet printing\"]"],402.27,16-04-23
+INV-020,Grace Lee,["[\"Brochure folding\"]"],153.6,06-03-24
+INV-021,Eve Adams,["[\"Custom stickers\"]"],380.82,09-03-23
+INV-022,Charlie Davis,["[\"Business cards printing\""],"Flyer design","Brochure folding"]
+INV-023,Grace Lee,["[\"Receipt book printing\"]"],183.97,26-09-23
+INV-024,Alice Johnson,["[\"Poster printing\""],"Banner setup"],74.65
+INV-025,Charlie Davis,["[\"Event posters\"]"],366.99,19-01-23
+INV-026,Jane Smith,["[\"Pamphlet design\""],"Leaflet printing"],283.48
+INV-027,Charlie Davis,["[\"Invoice book printing\"]"],151.58,04-01-24
+INV-028,Eve Adams,["[\"Poster printing\""],"Banner setup"],452.62
+INV-029,Bob Brown,["[\"Brochure folding\"]"],125.15,15-03-24
+INV-030,Jane Smith,["[\"Event posters\"]"],145.55,04-09-22
+INV-031,John Doe,["[\"Invoice book printing\"]"],210.96,21-11-22
+INV-032,Alice Johnson,["[\"Invoice book printing\"]"],263.15,11-07-24
+INV-033,Charlie Davis,["[\"Custom stickers\"]"],99.46,12-04-23
+INV-034,Frank White,["[\"Receipt book printing\"]"],241.75,18-02-22
+INV-035,John Doe,["[\"Poster printing\"]"],411.13,04-06-24
+INV-036,Alice Johnson,["[\"Pamphlet design\""],"Leaflet printing"],425.63
+INV-037,Jane Smith,["[\"Receipt book printing\"]"],220.51,24-07-23
+INV-038,Grace Lee,["[\"Custom stickers\"]"],433.78,27-04-22
+INV-039,Jane Smith,["[\"Flyer design\"]"],319.83,29-08-23
+INV-040,Eve Adams,["[\"Poster printing\""],"Banner setup"],113.56
+INV-041,Bob Brown,["[\"Receipt book printing\"]"],377.55,21-03-24
+INV-042,Grace Lee,["[\"Custom stickers\"]"],354.55,22-08-22
+INV-043,Frank White,["[\"Large format banner printing\""],"Event posters"],474.79
+INV-044,Grace Lee,["[\"Poster printing\""],"Banner setup"],302.9
+INV-045,Eve Adams,["[\"Invoice book printing\"]"],191.19,09-09-23
+INV-046,Eve Adams,["[\"Brochure folding\"]"],259.48,10-08-23
+INV-047,Eve Adams,["[\"Banner setup\"]"],275.56,30-06-24
+INV-048,Alice Johnson,["[\"Pamphlet design\"]"],306.65,11-07-22
+INV-049,Bob Brown,["[\"Invoice book printing\"]"],165.77,21-05-24
+INV-050,Jane Smith,["[\"Custom stickers\"]"],390.95,02-02-22
+INV-051,Frank White,["[\"Invoice book printing\"]"],452.53,17-08-22
+INV-052,Charlie Davis,["[\"Pamphlet design\"]"],465.72,04-02-24
+INV-053,Grace Lee,["[\"Pamphlet design\""],"Leaflet printing"],496.87
+INV-054,Bob Brown,["[\"Flyer design\"]"],160.39,07-07-22
+INV-055,Jane Smith,["[\"Leaflet printing\"]"],230.03,19-08-24
+INV-056,Alice Johnson,["[\"Pamphlet design\""],"Leaflet printing"],99.66
+INV-057,Grace Lee,["[\"Invoice book printing\"]"],480.28,07-12-22
+INV-058,Frank White,["[\"Large format banner printing\""],"Event posters"],178.72
+INV-059,Grace Lee,["[\"Large format banner printing\"]"],51.74,18-05-23
+INV-060,Grace Lee,["[\"Shop branding\"]"],448.42,14-01-24
+INV-061,Grace Lee,["[\"Custom stickers\"]"],139.04,06-11-23
+INV-062,Eve Adams,["[\"Brochure folding\"]"],234.7,31-01-22
+INV-063,Alice Johnson,["[\"Flyer design\"]"],244.03,14-06-22
+INV-064,John Doe,["[\"Shop branding\"]"],251.88,30-07-24
+INV-065,Eve Adams,["[\"Leaflet printing\"]"],480.28,29-03-23
+INV-066,Frank White,["[\"Business cards printing\"]"],51.19,12-11-23
+INV-067,Eve Adams,["[\"Business cards printing\""],"Flyer design","Brochure folding"]
+INV-068,Eve Adams,["[\"Large format banner printing\"]"],226.06,29-01-23
+INV-069,Grace Lee,["[\"Shop branding\""],"Logo design","Advertising flyers"]
+INV-070,Bob Brown,["[\"Pamphlet design\"]"],229.87,06-02-23
+INV-071,Bob Brown,["[\"Receipt book printing\"]"],294.82,05-08-23
+INV-072,Jane Smith,["[\"Banner setup\"]"],217.92,11-10-22
+INV-073,John Doe,["[\"Logo design\"]"],58.39,24-03-23
+INV-074,Jane Smith,["[\"Poster printing\""],"Banner setup"],140.08
+INV-075,Eve Adams,["[\"Event posters\"]"],195.09,25-12-22
+INV-076,Grace Lee,["[\"Poster printing\""],"Banner setup"],266.31
+INV-077,Alice Johnson,["[\"Poster printing\""],"Banner setup"],250.32
+INV-078,John Doe,["[\"Banner setup\"]"],378.26,02-05-24
+INV-079,Alice Johnson,["[\"Invoice book printing\"]"],127.0,04-03-23
+INV-080,Bob Brown,["[\"Invoice book printing\"]"],367.2,10-07-23
+INV-081,Alice Johnson,["[\"Receipt book printing\"]"],455.95,08-11-22
+INV-082,Bob Brown,["[\"Custom stickers\"]"],351.08,24-05-22
+INV-083,Grace Lee,["[\"Poster printing\""],"Banner setup"],488.54
+INV-084,Alice Johnson,["[\"Pamphlet design\""],"Leaflet printing"],60.04
+INV-085,Alice Johnson,["[\"Flyer design\"]"],323.06,24-10-23
+INV-086,Alice Johnson,["[\"Flyer design\"]"],398.28,09-09-23
+INV-087,Grace Lee,["[\"Receipt book printing\"]"],263.91,28-10-23
+INV-088,Charlie Davis,["[\"Invoice book printing\"]"],203.67,14-05-24
+INV-089,Bob Brown,["[\"Custom stickers\"]"],52.48,29-09-23
+INV-090,Jane Smith,["[\"Pamphlet design\""],"Leaflet printing"],190.29
+INV-091,Frank White,["[\"Banner setup\"]"],80.34,09-08-24
+INV-092,Jane Smith,["[\"Advertising flyers\"]"],434.21,03-12-22
+INV-093,Charlie Davis,["[\"Large format banner printing\"]"],243.96,27-07-23
+INV-094,Frank White,["[\"Shop branding\"]"],498.86,24-06-23
+INV-095,Frank White,["[\"Pamphlet design\"]"],146.7,26-05-23
+INV-096,Jane Smith,["[\"Invoice book printing\"]"],245.69,25-06-24
+INV-097,Charlie Davis,["[\"Event posters\"]"],323.32,01-12-22
+INV-098,Bob Brown,["[\"Receipt book printing\"]"],216.19,04-01-23
+INV-099,Frank White,["[\"Poster printing\"]"],271.15,08-02-24
+INV-100,Eve Adams,["[\"Large format banner printing\""],"Event posters"],293.27
+INV-101,Bob Brown,["[\"Invoice book printing\"]"],374.25,25-09-22
+INV-102,Frank White,["[\"Large format banner printing\""],"Event posters"],160.08
+INV-103,Charlie Davis,["[\"Invoice book printing\"]"],137.3,31-08-24
+INV-104,Charlie Davis,["[\"Event posters\"]"],370.08,08-01-23
+INV-105,Frank White,["[\"Custom stickers\"]"],182.85,01-10-22
+INV-106,Jane Smith,["[\"Receipt book printing\"]"],393.62,30-12-22
+INV-107,Charlie Davis,["[\"Shop branding\""],"Logo design","Advertising flyers"]
+INV-108,Frank White,["[\"Invoice book printing\"]"],224.67,16-04-22
+INV-109,Bob Brown,["[\"Invoice book printing\"]"],164.7,13-12-22
+INV-110,Charlie Davis,["[\"Flyer design\"]"],247.59,06-07-24
+INV-111,Bob Brown,["[\"Pamphlet design\""],"Leaflet printing"],222.95
+INV-112,Grace Lee,["[\"Large format banner printing\""],"Event posters"],401.47
+INV-113,John Doe,["[\"Custom stickers\"]"],114.46,12-01-23
+INV-114,Eve Adams,["[\"Invoice book printing\"]"],139.45,05-05-24
+INV-115,Eve Adams,["[\"Flyer design\"]"],169.3,13-11-23
+INV-116,Eve Adams,["[\"Pamphlet design\""],"Leaflet printing"],82.21
+INV-117,Alice Johnson,["[\"Event posters\"]"],84.37,23-05-24
+INV-118,Jane Smith,["[\"Invoice book printing\"]"],103.22,07-06-22
+INV-119,Frank White,["[\"Receipt book printing\"]"],322.21,09-03-24
+INV-120,Charlie Davis,["[\"Custom stickers\"]"],361.26,11-08-24
+INV-121,Grace Lee,["[\"Large format banner printing\""],"Event posters"],314.61
+INV-122,Grace Lee,["[\"Banner setup\"]"],348.71,05-05-24
+INV-123,Frank White,["[\"Shop branding\""],"Logo design","Advertising flyers"]
+INV-124,Bob Brown,["[\"Large format banner printing\"]"],83.09,16-03-23
+INV-125,Eve Adams,["[\"Poster printing\"]"],315.39,29-05-22
+INV-126,Bob Brown,["[\"Poster printing\""],"Banner setup"],114.07
+INV-127,Alice Johnson,["[\"Poster printing\"]"],380.13,06-06-24
+INV-128,John Doe,["[\"Shop branding\"]"],477.63,14-12-22
+INV-129,Jane Smith,["[\"Advertising flyers\"]"],448.39,27-02-24
+INV-130,Charlie Davis,["[\"Banner setup\"]"],206.07,05-05-22
+INV-131,Bob Brown,["[\"Invoice book printing\"]"],81.61,01-02-22
+INV-132,Bob Brown,["[\"Receipt book printing\"]"],378.77,23-04-22
+INV-133,Grace Lee,["[\"Pamphlet design\"]"],215.45,17-11-23
+INV-134,Charlie Davis,["[\"Poster printing\"]"],83.16,14-09-24
+INV-135,Eve Adams,["[\"Pamphlet design\"]"],490.6,05-02-23
+INV-136,John Doe,["[\"Event posters\"]"],345.71,28-01-24
+INV-137,Eve Adams,["[\"Receipt book printing\"]"],273.37,25-02-23
+INV-138,Jane Smith,["[\"Custom stickers\"]"],199.44,15-12-22
+INV-139,Charlie Davis,["[\"Large format banner printing\"]"],278.18,26-01-22
+INV-140,Bob Brown,["[\"Receipt book printing\"]"],134.43,19-04-22
+INV-141,Jane Smith,["[\"Large format banner printing\""],"Event posters"],440.1
+INV-142,Alice Johnson,["[\"Receipt book printing\"]"],493.67,04-05-23
+INV-143,Alice Johnson,["[\"Receipt book printing\"]"],483.92,26-01-22
+INV-144,Frank White,["[\"Poster printing\""],"Banner setup"],396.12
+INV-145,Frank White,["[\"Large format banner printing\"]"],252.52,06-09-24
+INV-146,Alice Johnson,["[\"Shop branding\""],"Logo design","Advertising flyers"]
+INV-147,Grace Lee,["[\"Leaflet printing\"]"],443.4,14-01-23
+INV-148,Jane Smith,["[\"Receipt book printing\"]"],127.83,23-03-23
+INV-149,Grace Lee,["[\"Invoice book printing\"]"],83.56,11-03-24
+INV-150,Jane Smith,["[\"Banner setup\"]"],176.2,11-07-24
